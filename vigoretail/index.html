@@ -1,28 +1,93 @@
 <html>
-
 <script>
-    function redirect() {
-      var userAgent = navigator.userAgent
-      var platform;
-  
-      if (userAgent.includes('Android')) {
-        // redirect link for Android. Add Play Store link below
-        // https://play.google.com/store/apps/details?id=zeus.nowmed.app
-        // https://play.google.com/store/apps/details?id=zeus.vigo.app
-        window.location.href = 'https://play.google.com/store/apps/details?id=zeus.vigo.app'
-      } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-        // Redirect link for iOS
-        // https://apps.apple.com/us/app/nowmed-by-apollo-jsc/id6448804112
-        // https://apps.apple.com/us/app/vigo-retail/id1554437253
-        window.location.href = 'https://apps.apple.com/us/app/vigo-retail/id1554437253'
+  function handleAndroidLink() {
+    const appUrl = 'zeus.vigo.app://';
+    const packageName = 'zeus.vigo.app';
+    const playStoreUrl = `https://play.google.com/store/apps/details?id=${packageName}`;
+
+    try {
+      // Check if the app is installed
+      const isInstalled = navigator.intent.startActivity({
+        action: 'android.intent.action.VIEW',
+        data: appUrl,
+        package: packageName,
+      });
+
+      if (isInstalled) {
+        // Open the app with the link data
+        navigator.intent.startActivity({
+          action: 'android.intent.action.VIEW',
+          data: `${appUrl}`,
+          package: packageName,
+        });
       } else {
-        // Fallback redirect for other platforms
-        window.location.href = 'https://vigoretail.com'
+        // Redirect to the Play Store if the app is not installed
+        window.location.href = playStoreUrl;
       }
-  
-      document.getElementById('platform').innerHTML = platform
+    } catch (error) {
+      // Handle any errors that occur
+      console.error('Error handling Android link:', error);
+      window.location.href = playStoreUrl;
     }
-    redirect()
-  </script>
+  }
+
+  function handleIOSLink() {
+    const appUrl = 'zeus.vigo.app://';
+    const appStoreUrl = 'https://apps.apple.com/us/app/vigo-retail/id1554437253';
+
+    if (navigator.standalone) {
+      // If the app is installed as a PWA, open the app with the link data
+      window.open(`${appUrl}`);
+    } else {
+      // Redirect to the App Store if the app is not installed
+      window.location.href = appStoreUrl;
+    }
+  }
+
+  function handleOtherPlatformsLink() {
+    const fallbackUrl = `https://vigoretail.com`;
+    window.location.href = fallbackUrl;
+  }
+
+
+  // function redirect() {
+  //   var userAgent = navigator.userAgent;
+
+  //   if (userAgent.includes('Android')) {
+  //     // Check if the app is installed on Android
+  //     navigator.intent?.startActivity({
+  //       action: 'android.intent.action.VIEW',
+  //       data: 'zeus.vigo.app://'
+  //     }).catch(() => {
+  //       // If the app is not installed, redirect to the Play Store link
+  //       window.location.href = 'https://play.google.com/store/apps/details?id=zeus.vigo.app';
+  //     });
+  //   } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+  //     if (navigator.standalone) {
+  //       // If the app is installed as a PWA on iOS, open the app URL
+  //       window.open('zeus.vigo.app://');
+  //     } else {
+  //       // If the app is not a PWA, redirect to the App Store link
+  //       window.location.href = 'https://apps.apple.com/us/app/vigo-retail/id1554437253';
+  //     }
+  //   } else {
+  //     // Fallback redirect for other platforms
+  //     window.location.href = 'https://vigoretail.com';
+  //   }
+  // }
+  function redirect() {
+    const userAgent = navigator.userAgent;
+
+    if (userAgent.includes('Android')) {
+      handleAndroidLink();
+    } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+      handleIOSLink();
+    } else {
+      handleOtherPlatformsLink();
+    }
+  }
+
+  redirect();
+</script>
 
 </html>
